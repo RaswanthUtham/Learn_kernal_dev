@@ -2,12 +2,18 @@
 ; That is why we start writing our Boot Loader from 0x7c00.
 
 org 0
-
 bits 16
 
-jmp 0x7c0:start                     ; Load CS register with 7c0 and jump to start
+BIOS_Parameter_Block:  ; total 35 bytes  
+jmp short start ; 2 bytes
+nop
+times 33 db 0   ; setting 33 bytes of BIOS Parameter Block to 0 (TBD during File System)
+
 
 start:
+    jmp 0x7c0:_start                     ; Load CS register with 7c0 and jump to start
+
+_start:
     cli                             ; Clear all interrupts
     mov ax, 0x7c0                   
     mov ds, ax                      ; Load ds with 0x7c0
