@@ -47,3 +47,27 @@
     The BPB is specific to older BIOS-based systems and the traditional FAT file systems (FAT12, FAT16, FAT32). Modern systems that use the Unified Extensible Firmware Interface (UEFI) instead of BIOS typically have a different data structure called the GUID Partition Table (GPT) for storing similar information.
 
     In summary, the BIOS Parameter Block is a data structure within the MBR that provides vital information to the BIOS for booting and accessing the file system on a storage device.
+
+## Interrupt Vector Table:
+
+    It is a table which contains the absolute address of interrupt handlers.
+
+    The Interrupt Vector Table (IVT) is a data structure used by the computer's hardware and operating system to handle interrupts. The location of the IVT depends on the specific computer architecture and operating system being used.
+
+    In the case of x86-based PCs, which use the BIOS or UEFI firmware, the IVT is typically located at the fixed memory address 0x0000:0x0000, also known as the physical address 0x00000000. This is the lowest address in the system's memory, and it contains the entry points for various interrupt handlers.
+
+    However, it's important to note that modern operating systems and hardware often use more advanced interrupt handling mechanisms, such as the Advanced Programmable Interrupt Controller (APIC) or the Interrupt Descriptor Table (IDT) in protected mode. These mechanisms may have different data structures and different locations in memory for handling interrupts
+    
+    In Intel, each interrupt address occupies has 4 bytes in IVT.
+    First 2 bytes is the offset and next two bytes is the segment.
+    so  int0 = 0x00
+        int1 = 0x04
+        int2 = 0x08
+        and so on .....
+
+    Example:
+        For interrupt 13, the processor looks at RAM location 0x46 (13 * 4) then takes the 2 bytes and calculates the offset then takes next 2 bytes and calculates the segment.
+
+        In 0x46 and 0x47 bytes of RAM we have 0x15(offset) and In 0x48 and 0x49 RAM location we have 0x7c0 (Segment), then the processor will execute the code at:
+            0x7c0 * 16 + 0x15 = 0x7c15
+
