@@ -1,6 +1,4 @@
-# Learn_kernal_dev
-
-## Real Mode
+# Real Mode
 
     1 MB of RAM is only accessible
     Memory access is done through segmentation memory model. (code segment, data segment, stack segment)
@@ -70,4 +68,13 @@
 
         In 0x46 and 0x47 bytes of RAM we have 0x15(offset) and In 0x48 and 0x49 RAM location we have 0x7c0 (Segment), then the processor will execute the code at:
             0x7c0 * 16 + 0x15 = 0x7c15
+
+## Read From DISK
+
+    Filesystems are kernel implemented, they are not part of hard disk
+    Data is read / written in sectors
+    Normally sectors are 512 bytes, so reading a sector from disk will return 512 bytes of data.
+
+    BIOS provides interrupt 13h to read from disk in real mode.
+    But however in protected mode, we have to write a driver to read and write to disks using LBA.
 
