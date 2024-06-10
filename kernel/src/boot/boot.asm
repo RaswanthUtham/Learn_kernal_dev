@@ -1,11 +1,21 @@
 ; BIOS Loads us to the address 0x7c00 in Intel
 ; That is why we start writing our Boot Loader from 0x7c00.
 
-org 0x7c00
+org 0
 
 bits 16
 
+jmp 0x7c0:start                     ; Load CS register with 7c0 and jump to start
+
 start:
+    cli                             ; Clear all interrupts
+    mov ax, 0x7c0                   
+    mov ds, ax                      ; Load ds with 0x7c0
+    mov es, ax                      ; Load es with 0x7c0
+    mov ax, 0
+    mov ss, ax                      ; Load ss with 0x00 since the stack grows downwards
+    mov sp, 0x7c00                  ; Load sp with 0x7c00
+    sti                             ; Store all interrupts
 
     mov si, message
     call print
