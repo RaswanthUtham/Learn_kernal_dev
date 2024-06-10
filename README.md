@@ -1,19 +1,26 @@
-# Learn_kernal_dev
+# Kernel Development
 
-## Real Mode
+1. The CPU executes instructions directly from BIOS from ROM
+2. The BIOS generally loads itself into RAM and continues execution from RAM
+3. The BIOS will initialise essential hardware
+4. The BIOS looks for a bootloader to boot by searching all storage mediums for the boot signature 0x55aa
+5. The BIOS loads the bootloader into RAM at absolute address 0x7c00
+6. The BIOS instructs the process to jump to 0x7c00 and begin executing the operating system bootloader
 
-    1 MB of RAM is only accessible
-    Memory access is done through segmentation memory model. (code segment, data segment, stack segment)
+# Real mode
 
-    Based on Original x86 design
+1. 1 MB of RAM is only accessible
+2. Memory access is done through segmentation memory model. (code segment, data segment, stack segment)
+ 
+3. Based on Original x86 design
+ 
+4. No Security for memory
+5. No security for hardware
+6. Simple user programs can destroy the operating system in real mode
+ 
+7. 36 Bits are accessible at once
 
-    No Security for memory
-    No security for hardware
-    Simple user programs can destroy the operating system in real mode
-
-    16 Bits are accessible at once
-    
-## Segmentation Memory Model
+# Segmentation Memory Model
 
     Memory is accessed by segment and offset
     Programs can be loaded into different areas of memory without any problems
@@ -38,7 +45,7 @@
     lodsb uses DS:SI
     Data Segment and SI register as offset
 
-## BIOS Parameter Block
+# BIOS Parameter Block
 
     The BIOS Parameter Block (BPB) is a data structure found in the Master Boot Record (MBR) of a storage device, such as a hard drive or a USB flash drive. It contains important information that the BIOS (Basic Input/Output System) uses to boot the computer and access the file system on the storage device.
 
@@ -48,7 +55,7 @@
 
     In summary, the BIOS Parameter Block is a data structure within the MBR that provides vital information to the BIOS for booting and accessing the file system on a storage device.
 
-## Interrupt Vector Table:
+# Interrupt Vector Table:
 
     It is a table which contains the absolute address of interrupt handlers.
 
@@ -70,4 +77,3 @@
 
         In 0x46 and 0x47 bytes of RAM we have 0x15(offset) and In 0x48 and 0x49 RAM location we have 0x7c0 (Segment), then the processor will execute the code at:
             0x7c0 * 16 + 0x15 = 0x7c15
-
