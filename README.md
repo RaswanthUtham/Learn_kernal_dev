@@ -44,3 +44,13 @@
     Example:
     lodsb uses DS:SI
     Data Segment and SI register as offset
+
+# BIOS Parameter Block
+
+    The BIOS Parameter Block (BPB) is a data structure found in the Master Boot Record (MBR) of a storage device, such as a hard drive or a USB flash drive. It contains important information that the BIOS (Basic Input/Output System) uses to boot the computer and access the file system on the storage device.
+
+    The BPB includes details such as the sector size, number of sectors per cluster, number of reserved sectors, number of file allocation tables (FATs), and other parameters related to the file system. These parameters help the BIOS understand the layout of the storage device and locate the bootloader, which is responsible for loading the operating system.
+
+    The BPB is specific to older BIOS-based systems and the traditional FAT file systems (FAT12, FAT16, FAT32). Modern systems that use the Unified Extensible Firmware Interface (UEFI) instead of BIOS typically have a different data structure called the GUID Partition Table (GPT) for storing similar information.
+
+    In summary, the BIOS Parameter Block is a data structure within the MBR that provides vital information to the BIOS for booting and accessing the file system on a storage device.
