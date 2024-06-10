@@ -9,19 +9,6 @@ jmp short start                 ; 2 bytes
 nop
 times 33 db 0                   ; setting 33 bytes of BIOS Parameter Block to 0 (TBD during File System)
 
-handle_0:                       ; Interrupt Handler (ISR) 0  
-    mov ah, 0eh
-    mov al, '0'
-    int 0x10
-    iret
-
-handle_1:                       ; Interrupt Handler (ISR) 1
-    mov ah, 0eh
-    mov al, '1'
-    int 0x10
-    iret
-
-
 start:
     jmp 0x7c0:_start                ; Load CS register with 7c0 and jump to start
 
@@ -35,16 +22,22 @@ _start:
     mov sp, 0x7c00                  ; Load sp with 0x7c00
     sti                             ; Store all interrupts
 
-    mov word[ss:00], handle_0        ; offset at address 00, 01 for interrupt 0
-    mov word[ss:02], 0x7c0           ; segment at adress 02, 03 for interrupt 0
+    mov ah, 2                   ; Read sector command
+    mov al, 1                   ; one sector to read
+    mov ch, 0                   ; cylinder low 8 bits
+    mov cl, 2                   ; 2nd sector to read
+    mov dh, 0                   ; Head Number
+    mov bx, buffer              ; Read from disk and store in buffer
+    int 0x13                    ; Interrupt to read all the data from disk
+    jc error
 
-    mov word[ss:04], handle_1        ; offset of handle_1
-    mov word[ss:06], 0x7c0           ; segment in which handle_1 resides
+    mov si, buffer
+    call print
 
-    int 0                           ; call interrupt 0
-    int 1                           ; call interrupt 1
+    jmp $
 
-    mov si, message
+error:
+    mov si, error_log
     call print
     jmp $
 
@@ -64,9 +57,11 @@ print_char:
     int 0x10                    ; call interrupt 10h
     ret
 
-message: db 'Hello World', 0
+error_log: db 'Failed to read disk', 0
 
 times 510 - ($ - $$) db 0       ; Fill remaining bytes with 0 (total 510 bytes needed)
 dw 0xAA55                       ; Boot Loader End Signature in Little Endian Format
+
+buffer:
 
 
