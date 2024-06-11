@@ -70,25 +70,77 @@ gdt_descriptor: ; contains size and start address of GDT table
     gdt_size            dw gdt_end - gdt_start - 1 ; size
     gdt_start_address   dd gdt_start ; address
 
-bits 32
+
+
+; ############################################### Loading the kernel into memory. #################################################
+[BITS 32]
 load32:
-    mov ax, DATA_SEGMENT
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    mov ebp, 0x00200000
-    mov esp, ebp
+; Driver to load the kernel into memory (Driver to read data from disk since it is not advisable to use interrupt 13)
+    mov eax, 1          ; load from sector 1 (which is kernel)
+    mov ecx, 100        ; total sectors to load
+    mov edi, 0x0100000  ; this is the address that we want to load the sectors into
+    call ata_lba_read   ; Function To read the sectors into memory. Refer osdev.org ATA
+    jmp CODE_SEGMENT:0x0100000  ; After loading the kernel into 0x100000 jump to that location and execute kernel.
 
-; Enable A20 line (21st bit of address line)
-    in al, 0x92
-    or al, 2
-    out 0x92, al
-    
-    jmp $
-    
-times 510 - ($ - $$) db 0       ; Fill remaining bytes with 0 (total 510 bytes needed)
-dw 0xAA55                       ; Boot Loader End Signature in Little Endian Format
+ata_lba_read:
+    ; Sending the highest 8 bits of LBA to Hard disk Controller.
+    mov ebx, eax        ; backup LBA
+    shr eax, 24         ; Shift eax 24 times right to send the highest 8 bits of the lba to hard disk controller
+    or eax, 0xE0        ; select the master drive
+    mov dx, 0x1F6       ; 0x1fx is the port in which we need to write highest 8 bits of lba.
+    out dx, al          ; al register contains the higher 8 bits after the right shift which is written to port 0x1F6
+    ; Finished sending the highest 8 bits of LBA
 
+    ; send the total sectors to read
+    mov eax, ecx
+    mov dx, 0x1F2
+    out dx, al
+    ; Finished sending total sectors
 
+    ; send all bits of the LBA
+    mov eax, ebx        ; restoring the backup LBA
+    mov dx, 0x1F3
+    out dx, al
+    ; Finished sending all bits of the LBA
+
+    ; send remaining bits of the LBA
+    mov eax, ebx        ; restoring the backup LBA
+    shr eax, 8
+    mov dx, 0x1F4
+    out dx, al
+    ; Finished sending remaining bits of the LBA
+
+    ; send upper 16 bits of the LBA
+    mov eax, ebx        ; restoring the backup LBA
+    shr eax, 16
+    mov dx, 0x1F5
+    out dx, al
+    ; Finished sending upper 16 bits of the LBA
+
+    mov dx, 0x1F7
+    mov al, 0x20
+    out dx, al
+
+    ; Read  all sectors into memory
+.next_sector:
+    push ecx
+
+; Checking if we need to read again (polling)
+.try_again:
+    mov dx, 0x1F7
+    in al, dx
+    test al, 8      ; Check if bit 8 is set, if it is not set keep polling otherwise it is ready to read.
+    jz .try_again
+
+; we need to read 256 words at a time
+    mov ecx, 256
+    mov dx, 0x1f0
+    rep insw    ; It will read the data from dx register and store it in location specified in ES:EDI (0x00:0x100000).
+    pop ecx 
+    loop .next_sector
+; End of reading sectors into memory
+    ret
+
+times 510-($ - $$) db 0 ; Tells atleast 510 bytes to be written in memory, otherwise it will be padded with 0
+dw 0xAA55  ; it will be written as 55AA in memory as intel is little endian
+; 0x55AA is the signature that tells the processor that it is a boot file, which should be at the end of the boot code
