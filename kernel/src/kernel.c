@@ -1,11 +1,14 @@
 #include "kernel.h"
 #include <stddef.h>
 #include <stdint.h>
-
+#include "idt/idt.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
 uint16_t terminal_col = 0;
+
+void error_1();
+void error_2();
 
 uint16_t terminal_make_char(char c, char colour)
 {
@@ -73,4 +76,11 @@ void kernel_main()
 {
     terminal_initialize();
     print("Hello world!\ntest");
+
+    /* IDT Init */
+    idt_init();
+
+    /* IDT test */
+    error_1();
+//    error_2();
 }

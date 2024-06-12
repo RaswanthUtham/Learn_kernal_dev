@@ -1,6 +1,8 @@
 [BITS 32]
 
 global _start
+global error_1
+global error_2
 extern kernel_main
 
 CODE_SEG equ 0x08
@@ -22,5 +24,12 @@ _start:
     out 0x92, al
     call kernel_main
     jmp $
+
+error_1:
+    mov eax, 0
+    div eax
+
+error_2:
+    int 0
 
     times 512-($ - $$) db 0
