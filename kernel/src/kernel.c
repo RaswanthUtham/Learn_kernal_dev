@@ -81,6 +81,9 @@ void kernel_main()
     /* IDT Init */
     idt_init();
 
+    /* enable interrupt */
+    enable_interrupts();
+    
     /* IDT test */
 //    error_1();
 //    error_2();
