@@ -82,7 +82,7 @@ void kernel_main()
     idt_init();
 
     /* IDT test */
-    error_1();
+//    error_1();
 //    error_2();
 
     /* IO test */
