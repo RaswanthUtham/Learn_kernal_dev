@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "idt/idt.h"
 #include "io/io.h"
+#include "memory/heap/kheap.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -78,6 +79,9 @@ void kernel_main()
     terminal_initialize();
     print("Hello world!\ntest");
 
+    /* heap init */
+    kheap_init();
+
     /* IDT Init */
     idt_init();
 
@@ -89,5 +93,46 @@ void kernel_main()
 //    error_2();
 
     /* IO test */
-    outb(0x60/*port*/, 0xff/*value*/);
+//    outb(0x60/*port*/, 0xff/*value*/);
+
+    /* heap- test */
+     // void *ptr1 = kmalloc(20);
+     // void *ptr2 = kmalloc(5000);
+     // void *ptr3 = kmalloc(12000);
+     // void *ptr4 = kmalloc(2);
+     // if (ptr1 || ptr2 || ptr3 || ptr4)
+     // {
+     //     // ptr1 = (void *) 0x1000000
+     //     // ptr2 = (void *) 0x1001000
+     //     // ptr3 = (void *) 0x1003000
+     //     // ptr4 = (void *) 0x1006000
+     // }
+
+    /* Malloc Test 2*/
+     // void *ptr1 = kmalloc(5000);  // 000-1999 2
+     // void *ptr2 = kmalloc(50);    //  2000 - 2999 1
+     // kfree(ptr2);                 // 2000 - 2999 1
+     // kfree(ptr1);                 // 000 - 1999 2
+     // void *ptr3 = kmalloc(12000); // 000 - 2999 3
+     // void *ptr4 = kmalloc(2);     // 3000 - 3999
+     // void *ptr5 = kmalloc(5);     // 4000 - 4999
+     // if (ptr1 || ptr2 || ptr3 || ptr4 || ptr5)
+     // {
+     // }
+
+    /* Malloc Test 3*/
+     void *ptr1 = kmalloc(5000);  // 000-1999 2
+     void *ptr2 = kmalloc(50);    //  2000 - 2999 1
+     kfree(ptr2);                 // 2000 - 2999 1
+     kfree(ptr1);                 // 000 - 1999 2
+     void *ptr3 = kmalloc(12000); // 000 - 2999 3
+     void *ptr4 = kmalloc(2);     // 3000 - 3999
+     void *ptr5 = kmalloc(5);     // 4000 - 4999
+     kfree(ptr3);                 // 0 - 2999
+     void *ptr6 = kmalloc(3900);  // 000 - 999
+     void *ptr7 = kmalloc(8000);  // 1000 - 2999
+     void *ptr8 = kmalloc(199);   // 5000 - 5999
+     if (ptr1 || ptr2 || ptr3 || ptr4 || ptr5 || ptr6 || ptr7 || ptr8)
+     {
+     }
 }
