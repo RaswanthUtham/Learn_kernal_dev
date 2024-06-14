@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "idt/idt.h"
 #include "io/io.h"
+#include "disk/disk.h"
 #include "memory/heap/kheap.h"
 
 uint16_t* video_mem = 0;
@@ -82,12 +83,15 @@ void kernel_main()
     /* heap init */
     kheap_init();
 
+    /* search and initialise hdd and disks */
+    disk_search_and_init();
+
     /* IDT Init */
     idt_init();
 
     /* enable interrupt */
     enable_interrupts();
-    
+
     /* IDT test */
 //    error_1();
 //    error_2();

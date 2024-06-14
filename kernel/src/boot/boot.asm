@@ -84,62 +84,64 @@ load32:
 
 ata_lba_read:
     ; Sending the highest 8 bits of LBA to Hard disk Controller.
-    mov ebx, eax        ; backup LBA
-    shr eax, 24         ; Shift eax 24 times right to send the highest 8 bits of the lba to hard disk controller
-    or eax, 0xE0        ; select the master drive
-    mov dx, 0x1F6       ; 0x1fx is the port in which we need to write highest 8 bits of lba.
-    out dx, al          ; al register contains the higher 8 bits after the right shift which is written to port 0x1F6
+    mov ebx, eax        ;  Copies the value in eax (which contains the LBA) into ebx to preserve the original LBA value for later use.
+    shr eax, 24         ; Performs a logical right shift on eax by 24 bits. This isolates the highest 8 bits of the LBA and places them in the lower 8 bits of eax.
+    or eax, 0xE0        ; Sets the highest 4 bits of eax to 1110 (binary) to select the master drive and mark the command as LBA addressing.
+    mov dx, 0x1F6       ; Sets the dx register to the port address 0x1F6, which is used for the highest 8 bits of the LBA.
+    out dx, al          ; Sends the lowest 8 bits of eax (which now contain the highest 8 bits of the LBA) to the port 0x1F6.
     ; Finished sending the highest 8 bits of LBA
 
     ; send the total sectors to read
-    mov eax, ecx
-    mov dx, 0x1F2
-    out dx, al
+    mov eax, ecx ; Copies the value in ecx (which contains the number of sectors to read) into eax.
+    mov dx, 0x1F2; Sets the dx register to the port address 0x1F2, which is used to specify the number of sectors to read.
+    out dx, al   ; Sends the lowest 8 bits of eax (which contain the sector count) to the port 0x1F2.
     ; Finished sending total sectors
 
     ; send all bits of the LBA
-    mov eax, ebx        ; restoring the backup LBA
-    mov dx, 0x1F3
-    out dx, al
+    mov eax, ebx        ; Restores the original LBA value from ebx back into eax.
+    mov dx, 0x1F3       ; Sets the dx register to the port address 0x1F3, which is used for the lowest 8 bits of the LBA.
+    out dx, al          ; Sends the lowest 8 bits of eax (which contain the lowest 8 bits of the LBA) to the port 0x1F3
     ; Finished sending all bits of the LBA
 
     ; send remaining bits of the LBA
-    mov eax, ebx        ; restoring the backup LBA
-    shr eax, 8
-    mov dx, 0x1F4
-    out dx, al
+    mov eax, ebx        ; Restores the original LBA value from ebx back into eax.
+    shr eax, 8          ; Performs a logical right shift on eax by 8 bits. This places the second lowest 8 bits of the LBA in the lower 8 bits of eax.
+    mov dx, 0x1F4       ; Sets the dx register to the port address 0x1F4, which is used for the next 8 bits of the LBA.
+    out dx, al          ; Sends the lowest 8 bits of eax (which contain the next 8 bits of the LBA) to the port 0x1F4.
     ; Finished sending remaining bits of the LBA
 
     ; send upper 16 bits of the LBA
-    mov eax, ebx        ; restoring the backup LBA
-    shr eax, 16
-    mov dx, 0x1F5
-    out dx, al
+    mov eax, ebx        ; Restores the original LBA value from ebx back into eax
+    shr eax, 16         ; Performs a logical right shift on eax by 16 bits. This places the third lowest 8 bits of the LBA in the lower 8 bits of eax.
+    mov dx, 0x1F5       ; Sets the dx register to the port address 0x1F5, which is used for the upper 8 bits of the LBA.
+    out dx, al          ; Sends the lowest 8 bits of eax (which contain the upper 8 bits of the LBA) to the port 0x1F5.
     ; Finished sending upper 16 bits of the LBA
 
-    mov dx, 0x1F7
-    mov al, 0x20
-    out dx, al
+    mov dx, 0x1F7       ; Sets the dx register to the port address 0x1F7, which is used for sending commands to the disk.
+    mov al, 0x20        ; Places the value 0x20 (the command for reading sectors) into the al register.
+    out dx, al          ; Sends the command 0x20 to the port 0x1F7 to initiate the read operation.
 
     ; Read  all sectors into memory
 .next_sector:
-    push ecx
+    push ecx            ;  Pushes the value in ecx (sector count) onto the stack to preserve it for later use.
 
 ; Checking if we need to read again (polling)
 .try_again:
-    mov dx, 0x1F7
-    in al, dx
-    test al, 8      ; Check if bit 8 is set, if it is not set keep polling otherwise it is ready to read.
-    jz .try_again
+    mov dx, 0x1F7       ; Sets the dx register to the port address 0x1F7, which is used for reading the status of the disk.
+    in al, dx           ; Reads the value from the status port 0x1F7 into the al register
+    test al, 8          ; Tests if the third bit (DRQ Data Request) in al is set. The test instruction performs a bitwise AND and sets the zero flag based on the result.
+    jz .try_again       ; If the zero flag is set (indicating that the DRQ bit is not set), jumps back to .try_again to continue polling.
 
 ; we need to read 256 words at a time
-    mov ecx, 256
-    mov dx, 0x1f0
-    rep insw    ; It will read the data from dx register and store it in location specified in ES:EDI (0x00:0x100000).
-    pop ecx 
-    loop .next_sector
+    mov ecx, 256        ; Sets ecx to 256, indicating that 256 words (512 bytes) need to be read
+    mov dx, 0x1f0       ; Sets the dx register to the port address 0x1F0, which is used for reading data from the disk. 
+    rep insw            ; The rep prefix repeats the insw instruction (which reads a word from the dx port into the memory location pointed to by es:edi) 256 times. It will read the data from dx register and store it in location specified in ES:EDI (0x00:0x100000).
+    pop ecx             ; Pops the saved sector count from the stack back into ecx.
+    loop .next_sector   ; Decrements ecx and jumps to .next_sector if ecx is not zero, repeating the process for the next sector if necessary.
 ; End of reading sectors into memory
     ret
+
+; This code sets up the ATA controller to read a specified number of sectors starting from a given LBA, then reads the data from the disk into memory, sector by sector. The polling mechanism ensures that the disk is ready to transfer data before each read operation.
 
 times 510-($ - $$) db 0 ; Tells atleast 510 bytes to be written in memory, otherwise it will be padded with 0
 dw 0xAA55  ; it will be written as 55AA in memory as intel is little endian
