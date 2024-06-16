@@ -8,6 +8,7 @@
 #include "memory/heap/kheap.h"
 #include "memory/paging/paging.h"
 #include "fs/pparser.h"
+#include "disk/streamer.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -167,9 +168,11 @@ void kernel_main()
 
     // }
 
+    /* disk streamert test */
+
     struct disk_stream* stream = diskstreamer_new(0);
-    diskstreamer_seek(stream, 0x201);
-    unsigned char c = 0;
-    diskstreamer_read(stream, &c, 1);
+    diskstreamer_seek(stream, 0x10);
+    unsigned char c[701] = {0};
+    diskstreamer_read(stream, &c, 700);
     while(1) {}
 }
