@@ -18,7 +18,7 @@ int strnlen(const char* ptr, int max)
     return i;
 }
 
-bool isdigt(char c)
+bool isdigit(char c)
 {
     return c>=48 && c<=57;
 }

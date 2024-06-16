@@ -3,10 +3,11 @@
 #include <stdint.h>
 #include "idt/idt.h"
 #include "io/io.h"
+#include "string/string.h"
 #include "disk/disk.h"
 #include "memory/heap/kheap.h"
 #include "memory/paging/paging.h"
-#include "string/string.h"
+#include "fs/pparser.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -150,10 +151,19 @@ void kernel_main()
     //  }
     
     /* paging test */
-    char *ptr2 = (char *) 0x1000;
-    ptr2[0] = 'Z';
-    ptr2[1] = 'p';
+   //  char *ptr2 = (char *) 0x1000;
+   //  ptr2[0] = 'Z';
+   //  ptr2[1] = 'p';
 
-    print(ptr2);
-    print(ptr);
+   //  print(ptr2);
+   //  print(ptr);
+   
+    /* pathparser test */
+    struct path_root* root_path = pathparser_parse("0:/bin/shell.exe", NULL);
+
+    if(root_path)
+    {
+
+
+    }
 }

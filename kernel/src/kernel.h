@@ -8,6 +8,7 @@
 #define VGA_HEIGHT 20
 #define MAX_COL_WIDTH 80
 #define MAX_ROW_HEIGHT 20
+#define PEACHOS_MAX_PATH 108
 
 /* Register Adresses */
 #define VIDEO_ADDRESS 0xB8000
