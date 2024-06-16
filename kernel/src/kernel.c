@@ -6,6 +6,7 @@
 #include "disk/disk.h"
 #include "memory/heap/kheap.h"
 #include "memory/paging/paging.h"
+#include "string/string.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -41,6 +42,7 @@ void terminal_writechar(char c, char colour)
         terminal_row += 1;
     }
 }
+
 void terminal_initialize()
 {
     video_mem = (uint16_t*)(0xB8000);
@@ -55,17 +57,6 @@ void terminal_initialize()
     }   
 }
 
-
-size_t strlen(const char* str)
-{
-    size_t len = 0;
-    while(str[len])
-    {
-        len++;
-    }
-
-    return len;
-}
 
 void print(const char* str)
 {
