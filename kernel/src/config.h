@@ -14,4 +14,8 @@
 
 #define PEACHOS_TOTAL_INTERRUPTS 512
 
+// file system
+#define PEACHOS_MAX_FILESYSTEMS 12
+#define PEACHOS_MAX_FILE_DESCRIPTORS 512
+
 #endif
