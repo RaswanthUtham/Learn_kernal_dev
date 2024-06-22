@@ -1,0 +1,73 @@
+# Refer FAT16 header implementation in boot.asm
+# C code implementation in fat16.c
+
+; BIOS Parameter Block is where file system parameters are defined.
+; FAT FILE SYSTEM
+;   File Allocation Table is developed by microsoft
+;   Consists of series of cluster that hold data and table that determines the state of a cluster
+;   The BOOT sector (BootLoader) stores the information about the filesystem.
+
+; FAT16 File System
+;   Uses clusters to represent data and subdirectories
+;   Every clusters contains a fixes amount of sectors, which is specified in the boot sector
+;   Every file in FAT16 needs atleast 1 cluster for its data, so a lot of storage is wasted.
+;   FAT16 cannot store files larger than 2 GB without large file support. With large file support 4GB is the maximum.
+
+; FAT16 Disk layout
+;   Name            | size                                                           | Description
+;-------------------|----------------------------------------------------------------|---------------------------
+;   Boot sector     | 512 bytes                                                      | First sector is boot sector
+;   Reserved sectors| Fat_headers.reserver_sectors * 512 bytes                       | Sectors we don't want to include in FS. Includes Boot sector
+;   FAT1            | Fat_headers.sectors_per_fat * 512 bytes                        | Stores infos like which art of disk is free / used / inaccessable / read / write ...
+;   FAT2 (optional) | Fat_headers.sectors_per_fat * 512 bytes                        | replica of FAT1
+;   Root Directory  | Fat_header.root_dir_entries * sizeof(struct fat_directory_item)| Root directories
+;   Data clusters   | X                                                              | All data are stored.
+
+; FAT16 Root Directory
+;   All File systems have directories
+;   The root directory is the top most directory in the system
+;   Directory contains directory entries of a fixed size.
+
+; Directory entries
+;   It is a structure struct fat_directory_item which contains the following
+;   type       |   Name                                Description
+; -------------|--------------------------------------------------------------------------
+;   uint8_t    |   filename[8]                          File Name 8 bytes
+;   uint8_t    |   ext[3]                               File extension 3 bytes
+;   uint8_t    |   attribute                            Attributes that contains flags -> (file / directory / readonly /...), ...
+;   uint8_t    |   reserved                             unused
+;   uint8_t    |   creation_time_tenths_of_a_sec        
+;   uint16_t   |   creation_time                        
+;   uint16_t   |   creation_date
+;   uint16_t   |   last_access
+;   uint16_t   |   high_16_bits_first_cluster           OR ing high 16 bits and low 16 bits will give the base address of file / directory
+;   uint16_t   |   last_mod_time
+;   uint16_t   |   last_mod_date
+;   uint16_t   |   low_16_bits_first_cluster
+;   uint32_t   |   filesize
+
+; high_16_bits_first_cluster and low_16_bits_first_cluster
+;   First cluster points to the start of file data if data item is a file
+;   If it is a directory It points to a cluster that has directory entries
+
+; Iterating through directories
+;   Boot sector contains the maximum number of root directory entries. We should not exceed this value when iterating
+;   through root directory.
+;   We know when we have finished iterating through the root directory or subdirectory because the first byte of the
+;   file name will be equal to zero.
+
+; Directory Entry attribute flags
+;   value |  Description
+;---------|-------------------------------------------------------------------
+;   0x01  |  Read only
+;   0x02  |  File hidden
+;   0x04  |  System file donot move the clusters
+;   0x08  |  volume label
+;   0x10  |  if set, it's a subdirectory. If not set it is a regular file.
+;   0x20  |  Archived
+;   0x40  |  Device
+;   0x80  |  Reserved must not be changed by disk tools.
+
+; FAT16 filename and extension
+;   File name is 8 bytes wide and unused bytes are padded with spaces
+;   Extension is 3 bytes wide and unused bytes are padded with spaces

@@ -1,4 +1,5 @@
 # Refer FAT16 header implementation in boot.asm
+# C code implementation in fat16.c
 
 ; BIOS Parameter Block is where file system parameters are defined.
 ; FAT FILE SYSTEM
