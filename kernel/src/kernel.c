@@ -4,6 +4,7 @@
 #include "idt/idt.h"
 #include "io/io.h"
 #include "string/string.h"
+#include "fs/file.h"
 #include "disk/disk.h"
 #include "memory/heap/kheap.h"
 #include "memory/paging/paging.h"
@@ -78,6 +79,9 @@ void kernel_main()
 
     /* heap init */
     kheap_init();
+
+    /* filesystem init */
+    fs_init();
 
     /* search and initialise hdd and disks */
     disk_search_and_init();
@@ -170,9 +174,12 @@ void kernel_main()
 
     /* disk streamert test */
 
-    struct disk_stream* stream = diskstreamer_new(0);
-    diskstreamer_seek(stream, 0x10);
-    unsigned char c[701] = {0};
-    diskstreamer_read(stream, &c, 700);
+    // struct disk_stream* stream = diskstreamer_new(0);
+    // diskstreamer_seek(stream, 0x10);
+    // unsigned char c[701] = {0};
+    // diskstreamer_read(stream, &c, 700);
+    
+
+
     while(1) {}
 }
