@@ -179,6 +179,13 @@ void kernel_main()
     // unsigned char c[701] = {0};
     // diskstreamer_read(stream, &c, 700);
     
+    /* fopen test */
+    int fd = fopen("0:/hello.txt", "r");
+    if (fd)
+    {
+        print("We opened hello.txt\n");
+    }
+    
 
 
     while(1) {}

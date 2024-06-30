@@ -17,5 +17,6 @@
 // file system
 #define PEACHOS_MAX_FILESYSTEMS 12
 #define PEACHOS_MAX_FILE_DESCRIPTORS 512
+#define PEACHOS_MAX_PATH 108
 
 #endif
