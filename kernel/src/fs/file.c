@@ -13,6 +13,12 @@ struct filesystem* filesystems[PEACHOS_MAX_FILESYSTEMS]; /* filesystems is an ar
 struct file_descriptor* file_descriptors[PEACHOS_MAX_FILE_DESCRIPTORS]; /* file_descriptors is an array of pointers to file_descriptor structures, used to manage file descriptors for open files. */ 
 
 
+static void file_free_descriptor(struct file_descriptor* desc)
+{
+    file_descriptors[desc->index-1] = 0x00;
+    kfree(desc);
+}
+
 /* This function finds the first available slot in the filesystems array and returns a pointer to that slot. If no free slot is found, it returns 0. */
 
 static struct filesystem** fs_get_free_filesystem()
@@ -271,6 +277,10 @@ int fclose(int fd)
     }
 
     res = desc->filesystem->close(desc->private);
+    if (res == PEACHOS_ALL_OK)
+    {
+        file_free_descriptor(desc);
+    }
 out:
     return res;
 }

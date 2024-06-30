@@ -210,11 +210,22 @@ void kernel_main()
    // }
     
     /* fstat test */
+    // int fd = fopen("0:/hello.txt", "r");
+    // struct file_stat s;
+    // if (fd)
+    // {
+    //     fstat(fd, &s);
+    // }
+
+    /* fclose test */
+
     int fd = fopen("0:/hello.txt", "r");
     struct file_stat s;
     if (fd)
     {
         fstat(fd, &s);
+        fclose(fd);
+        print("file closeed\n");
     }
     while(1) {}
 }
