@@ -28,6 +28,12 @@ void terminal_putchar(int x, int y, char c, char colour)
     video_mem[(y * VGA_WIDTH) + x] = terminal_make_char(c, colour); /* (row * max_column + column) */
 }
 
+void panic(const char* msg)
+{
+    print(msg);
+    while(1) {}
+}
+
 void terminal_writechar(char c, char colour)
 {
     if (c == '\n')
