@@ -179,14 +179,16 @@ void kernel_main()
     // unsigned char c[701] = {0};
     // diskstreamer_read(stream, &c, 700);
     
-    /* fopen test */
+    /* fopen, fread test */
     int fd = fopen("0:/hello.txt", "r");
     if (fd)
     {
         print("We opened hello.txt\n");
+        char buf[14];
+        fread(buf, 13, 1, fd);
+        buf[13] = 0;
+        print(buf);
     }
-    
-
 
     while(1) {}
 }
