@@ -198,16 +198,23 @@ void kernel_main()
     // }
 
     /* fseek test */
+   // int fd = fopen("0:/hello.txt", "r");
+   // if (fd)
+   // {
+   //     print("We opened hello.txt\n");
+   //     char buf[14];
+   //     fseek(fd, 2, SEEK_SET);
+   //     fread(buf, 11, 1, fd);
+   //     buf[13] = 0;
+   //     print(buf);
+   // }
+    
+    /* fstat test */
     int fd = fopen("0:/hello.txt", "r");
+    struct file_stat s;
     if (fd)
     {
-        print("We opened hello.txt\n");
-        char buf[14];
-        fseek(fd, 2, SEEK_SET);
-        fread(buf, 11, 1, fd);
-        buf[13] = 0;
-        print(buf);
+        fstat(fd, &s);
     }
-
     while(1) {}
 }
